@@ -2,8 +2,10 @@
 import os
 import win32api
 import platform
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 from pathlib import Path
+from io import StringIO
+import re
 import textract
 
 # 创建一个flask应用
@@ -39,7 +41,24 @@ def extract_text(file_path, keyword):
 @app.route("/")
 def index():
     # 获取用户选择的目录，默认为根目录
-    folder = request.args.get("folder", os.path.abspath(os.sep))
+    folder = request.args.get("folder")
+    if folder is None:
+        # 根据操作系统设置默认值
+        os_name = platform.system()
+        if os_name == "Windows":
+            # Windows下展示所有驱动器
+            folder = win32api.GetLogicalDriveStrings()
+            print(folder)
+        elif os_name == "Linux":
+            # Linux下展示根目录
+            folder = os.path.abspath(os.sep)
+        elif os_name == "Darwin":
+            # Mac OS X下展示根目录
+            folder = os.path.abspath(os.sep)
+        else:
+            # 其他操作系统暂不支持
+            return "Sorry, your operating system is not supported."
+
     # 获取用户输入的关键字，默认为空
     keyword = request.args.get("keyword", "")
     # 创建一个空列表来存储查询结果

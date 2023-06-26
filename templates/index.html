@@ -31,9 +31,13 @@
 <body>
     <h1>APP文件检索系统</h1>
 
+    <!-- 非Windows系统下 -->
+    {% if platform.system() != "Windows" %}}
     <!-- 显示当前目录，并提供一个链接让用户返回上一级目录 -->
     <p class="folder">当前目录：{{ folder }}</p>
+    {% if folder != os.path.abspath (os.sep) %}
     <p><a href="{{ url_for('index', folder=Path(folder).parent) }}">返回上一级目录</a></p>
+    {% endif %}
     <!-- 显示当前目录下的所有子目录，并提供一个链接让用户进入子目录 -->
     <p>子目录：</p>
     <ul>
@@ -43,6 +47,40 @@
         {% endif %}
         {% endfor %}
     </ul>
+    <!-- Windows系统下 -->
+    {% else %}
+    <!-- 显示当前目录，并提供一个链接让用户返回上一级目录 -->
+    <!-- 非根目录 -->
+    {% if folder != win32api.GetLogicalDriveStrings() %}
+    <!-- 显示当前目录，并提供一个链接让用户返回上一级目录 -->
+    <p class="folder">当前目录：{{ folder }}</p>
+    {% if folder == os.path.abspath (os.sep) %}
+    <p><a href="{{ url_for('index', folder=win32api.GetLogicalDriveStrings()) }}">返回上一级目录</a></p>
+    {% else %}
+    <p><a href="{{ url_for('index', folder=Path(folder).parent) }}">返回上一级目录</a></p>
+    {% endif %}
+    <!-- 显示当前目录下的所有子目录，并提供一个链接让用户进入子目录 -->
+    <p>子目录：</p>
+    <ul>
+        {% for subfolder in Path(folder).iterdir() %}
+        {% if subfolder.is_dir() %}
+        <li><a href="{{ url_for('index', folder=subfolder) }}">{{ subfolder.name }}</a></li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+    <!-- 根目录 -->
+    {% else %}
+    <!-- 显示当前目录，并提供一个链接让用户返回上一级目录 -->
+    <p class="folder">当前目录：盘符目录</p>
+    <!-- 显示当前目录下的所有子目录，并提供一个链接让用户进入子目录 -->
+    <p>子目录：</p>
+    <ul>
+        {% for drive in folder.split('\000')[:-1] %}
+        <li><a href="{{ url_for('index', folder=drive) }}">{{ drive }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endif %}
     <!-- 提供一个表单让用户输入关键字，并提交查询 -->
     <form method="get" action="{{ url_for('index') }}">
         <input type="hidden" name="folder" value="{{ folder }}">
