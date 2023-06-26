@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>APP文件检索系统</title>
+    <style>
+        /* 定义一些样式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: blue;
+        }
+        .folder {
+            font-weight: bold;
+        }
+        .keyword {
+            color: red;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>APP文件检索系统</h1>
+
+    <!-- 显示当前目录，并提供一个链接让用户返回上一级目录 -->
+    <p class="folder">当前目录：{{ folder }}</p>
+    <p><a href="{{ url_for('index', folder=Path(folder).parent) }}">返回上一级目录</a></p>
+    <!-- 显示当前目录下的所有子目录，并提供一个链接让用户进入子目录 -->
+    <p>子目录：</p>
+    <ul>
+        {% for subfolder in Path(folder).iterdir() %}
+        {% if subfolder.is_dir() %}
+        <li><a href="{{ url_for('index', folder=subfolder) }}">{{ subfolder.name }}</a></li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+    <!-- 提供一个表单让用户输入关键字，并提交查询 -->
+    <form method="get" action="{{ url_for('index') }}">
+        <input type="hidden" name="folder" value="{{ folder }}">
+        <p>请输入查询的关键字：<input type="text" name="keyword" value="{{ keyword }}"></p>
+        <p><input type="submit" value="查询"></p>
+    </form>
+
+    <!-- 如果有查询结果，就显示一个表格，每一行对应一个文件，每一列对应一个选择框和一个结果内容 -->
+    {% if results %}
+    <form method="get" action="{{ url_for('save') }}">
+        <table>
+            <tr>
+                <th>选择</th>
+                <th>结果</th>
+            </tr>
+            {% for file_path, matches in results %}
+            {% for line_number, content in matches %}
+            <!-- 将关键字用span标签包裹，并添加样式 -->
+            {% set content = content|replace(keyword, '<span class="keyword">' + keyword + '</span>')|safe %}
+            <!-- 将文件路径和行号作为选择框的值 -->
+            {% set value = file_path + ":" + line_number|string %}
+            <tr>
+                <td><input type="checkbox" name="selections" value="{{ value }}"></td>
+                <td>{{ file_path }}<br>{{ "-" * 30 }}<br>Line {{ line_number }}: {{ content }}</td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+        </table>
+        <!-- 提供一个按钮让用户保存选择的结果到文本，并下载 -->
+        <p><input type="submit" value="保存"></p>
+    </form>
+    {% endif %}
+</body>
+</html>
+
