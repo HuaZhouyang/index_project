@@ -4,27 +4,93 @@
     <meta charset="UTF-8">
     <title>APP文件检索系统</title>
     <style>
-        /* 定义一些样式 */
+        /*body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td, img {*/
+        /*    padding: 0;*/
+        /*    margin: 0;*/
+        /*}*/
+
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
+
         h1 {
             color: blue;
         }
+
         .folder {
             font-weight: bold;
         }
+
         .keyword {
             color: red;
         }
+
         table {
             border-collapse: collapse;
-            width: 100%;
+            /*width: 100%;*/
         }
+
         th, td {
             border: 1px solid black;
             padding: 10px;
+        }
+
+        .parent-td {
+            text-align: center;
+        }
+
+        .parent-th {
+            width: 100px;
+            min-width: 55px;
+        }
+
+        .child-th {
+            width: 800px;
+        }
+
+        /* 隐藏默认的checkbox样式 */
+        input[type=checkbox] {
+            display: none;
+        }
+
+        /* 自定义checkbox样式 */
+        .custom-checkbox {
+            width: 16px;
+            height: 16px;
+            border: 1px solid #999;
+            text-align: center;
+            line-height: 16px;
+            color: #0000;
+            background-color: #fff;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* 自定义选中状态的样式 */
+        .custom-checkbox.checked {
+            color: #fff;
+            background-color: #0075ff;
+        }
+
+        /* 自定义半选状态的样式 */
+        .custom-checkbox.half-checked {
+            color: #fff;
+            background-color: #ccc;
+        }
+
+        pre {
+            display: inline;
+        }
+
+        .content-container {
+            /*display: inline-block;*/
+            /*width: 700px;*/
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -93,20 +159,33 @@
     <form method="get" action="{{ url_for('save') }}">
         <table>
             <tr>
-                <th>选择</th>
-                <th>结果</th>
+                <th class="parent-th">选择</th>
+                <th class="child-th">结果</th>
             </tr>
             {% for file_path, matches in results %}
-            {% for line_number, content in matches %}
-            <!-- 将关键字用span标签包裹，并添加样式 -->
-            {% set content = content|replace(keyword, '<span class="keyword">' + keyword + '</span>')|safe %}
-            <!-- 将文件路径和行号作为选择框的值 -->
-            {% set value = file_path + ":" + line_number|string %}
             <tr>
-                <td><input type="checkbox" name="selections" value="{{ value }}"></td>
-                <td>{{ file_path }}<br>{{ "-" * 30 }}<br>Line {{ line_number }}: {{ content }}</td>
+                <td class="parent-td">
+                    <label>
+                        <input class="parent" type="checkbox" name="selections" value="{{ file_path }}">
+                        <span class="custom-checkbox">✔</span>
+                    </label>
+                </td>
+                <td class="child-td">{{ file_path }}<br>{{ "-" * 50 }}
+                    {% for line_number, content in matches %}
+                    <!-- 将关键字用span标签包裹，并添加样式 -->
+                    {% set content = content|replace(keyword, '<span class="keyword">' + keyword + '</span>')|safe %}
+                    <!-- 将文件路径和行号作为选择框的值 -->
+                    {% set value = line_number ~":"~ content|string %}
+                    <label>
+                        <input class="child" type="checkbox" name="{{ file_path }}" value="{{ line_number }}">
+                        <span class="custom-checkbox">✔</span>
+                        &nbsp;Line {{ line_number }}
+                        <pre>	</pre>
+                        <span class="content-container">{{ content }}</span>
+                    </label>
+                    {% endfor %}
+                </td>
             </tr>
-            {% endfor %}
             {% endfor %}
         </table>
         <!-- 提供一个按钮让用户保存选择的结果到文本，并下载 -->
@@ -114,5 +193,7 @@
     </form>
     {% endif %}
 </body>
+<script src="js/jquery.3.4.1.min.js"></script>
+<script src="js/index.js"></script>
 </html>
 

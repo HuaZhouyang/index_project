@@ -9,7 +9,7 @@ import re
 import textract
 
 # 创建一个flask应用
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='', static_folder='templates', template_folder='templates')
 
 # 定义一个函数，用于从文件中提取文本，并返回包含关键字的行号和内容
 def extract_text(file_path, keyword):
@@ -73,6 +73,11 @@ def index():
     # 渲染主页模板，并传递参数
     return render_template("index.html", folder=folder, keyword=keyword, results=results,
                            Path=Path, os=os, win32api=win32api, platform=platform)
+
+
+@app.route("/save")
+def save():
+    print('save')
 
 # 运行flask应用
 if __name__ == "__main__":
