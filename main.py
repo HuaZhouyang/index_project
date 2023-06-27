@@ -75,9 +75,28 @@ def index():
     return render_template("index.html", folder=folder, keyword=keyword, results=results,
                            Path=Path, os=os, win32api=win32api, platform=platform)
 
+# 定义一个路由，用于保存用户选择的结果到文本，并下载
 @app.route("/save")
 def save():
-    print('save')
+    # 获取用户选择的结果，格式为"文件路径:行号"，例如"test.txt:3"
+    selections = request.args.getlist("selections")
+    # 创建一个StringIO对象来存储文本内
+    output = StringIO()
+    # 遍历每一个选择，根据文件路径和行号，提取对应的内容，并写入到StringIO对象中
+    for selection in selections:
+        file_path = selection
+        output.write(f"{file_path}" + "\n")
+        output.write("-" * 50 + "\n")
+        line_nums = request.args.getlist(file_path)
+        for line_num in line_nums:
+            line_number = int(line_num)
+            content = extract_text(Path(file_path), "")[line_number - 1][1]
+            output.write(f"Line {line_number}: {content}\n\n")
+        output.write("-" * 100 + "\n")
+    # 将StringIO对象的内容保存到一个临时文件中，并返回给用户下载
+    with open('temp.txt', 'w') as f:
+        f.write(output.getvalue())
+    return flask.send_file('temp.txt', as_attachment=True, download_name="results.txt")
 
 # 运行flask应用
 if __name__ == "__main__":
