@@ -65,15 +65,15 @@ def index():
     results = []
     # 如果用户输入了关键字，就遍历目录下的所有txt/pdf/word文件，并调用extract_text函数来获取结果
     if keyword:
-        for file_path in Path(folder).glob("*.*"):
-            if file_path.suffix.lower() in [".txt", ".pdf", ".doc", ".docx"]:
-                matches = extract_text(file_path, keyword)
-                if matches:
-                    results.append((file_path, matches))
+        for root, dirs, files in os.walk(folder):
+            for file in files:
+                if file.endswith(".txt") or file.endswith(".txt") or file.endswith(".txt") or file.endswith(".txt"):
+                    matches = extract_text(Path(os.path.join(root, file)), keyword)
+                    if matches:
+                        results.append((Path(os.path.join(root, file)), matches))
     # 渲染主页模板，并传递参数
     return render_template("index.html", folder=folder, keyword=keyword, results=results,
                            Path=Path, os=os, win32api=win32api, platform=platform)
-
 
 @app.route("/save")
 def save():
