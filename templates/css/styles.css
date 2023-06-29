@@ -1,0 +1,155 @@
+/*body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td, img {*/
+        /*    padding: 0;*/
+        /*    margin: 0;*/
+        /*}*/
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+h1 {
+    color: blue;
+}
+
+.folder {
+    font-weight: bold;
+}
+
+.keyword {
+    color: red;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.parent-td {
+    text-align: center;
+    width: 100px;
+    min-width: 55px;
+}
+
+.child-td {
+    /*width: 800px;*/
+    overflow-wrap: anywhere;
+}
+
+input[type=checkbox] {
+    display: none;
+}
+
+.custom-checkbox {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #999;
+    text-align: center;
+    line-height: 16px;
+    color: #fff;
+    background-color: #fff;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.custom-checkbox.checked {
+    color: #fff;
+    background-color: #0075ff;
+}
+
+.custom-checkbox.half-checked {
+    color: #fff;
+    background-color: #ccc;
+}
+
+pre {
+    display: inline;
+}
+
+.content-container {
+    /*display: inline-block;*/
+    /*max-width: 750px;*/
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+    /*word-wrap: break-word;*/
+}
+
+/* 添加链接样式 */
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a.button {
+    font-size: 12px;
+    display: inline-block;
+    padding: 3px 6px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+a.button:hover {
+    background-color: #0056b3;
+}
+
+.submit-button {
+    font-size: 12px;
+    background-color: #007bff;
+    color: #fff;
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}
+
+#btn_save.submit-button {
+    font-size: 20px;
+    padding: 8px 16px;
+}
+
+#btn_search.submit-button {
+    font-size: 10px;
+
+}
+
+input[name="keyword"] {
+    border: none;
+    border-radius: 20px;
+    padding: 8px 30px 8px 10px;
+    background-color: #f2f2f2;
+    background-image: url('../imgs/Search.svg');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+}
+
+input[name="keyword"]:focus {
+    outline: none;
+    box-shadow: 0 0 2px 2px #b3d6e5;
+}
+
+.tab-pre {
+    background-color: #0000;
+    border: none;
+}
+
+.progress-bar {
+    transition-duration: 0.1s;
+}
