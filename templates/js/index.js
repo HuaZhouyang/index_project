@@ -1,15 +1,6 @@
 // 获取所有的父子checkbox
 let parents = $(".parent");
 let children = $(".child");
-function checked(checkbox) {
-
-}
-function half_checked(checkbox) {
-
-}
-function uncheck(checkbox) {
-
-}
 // 给每个父checkbox添加点击事件
 parents.each(function () {
     $(this).change(function () {
@@ -98,3 +89,41 @@ children.each(function () {
         }
     });
 });
+
+let interval;
+update_progress(); // 载入时，当progress==100显示结果
+function submit_search() {
+    interval = setInterval(update_progress, 100);
+    $('.progress-bar').css('width', '0%').attr('aria-valuenow', 0).text(0 + '%');
+    // $('#results-form').hide();
+    $(".progress").show();
+}
+//方法一 while循环方式
+function sleep(ms) {
+    let start = Date.now()
+    let end = start + ms
+    while(true) {
+        if(Date.now() > end) {
+            return
+        }
+    }
+}
+// 定义一个函数，每隔一秒向/progress发送一个get请求，并根据返回的值更新进度条的宽度和百分比
+function update_progress() {
+    // $('.progress-bar').css('width', 0 + '%').attr('aria-valuenow', 0).text(0 + '%');
+    // $(".progress").show();
+    $.get('/progress').done(function (n) {
+        $('.progress-bar').css('width', n + '%').attr('aria-valuenow', n).text(n + '%');
+        if (n == 100) {
+            // 如果进度为100%，就停止轮询，并显示搜索结果
+            clearInterval(interval);
+            // $('#results-form').show();
+            $('#myModal').modal('show');
+            // $(".progress").hide();
+        }
+    }).fail(function () {
+        // 如果请求失败，就停止轮询，并显示错误信息
+        clearInterval(interval);
+        alert('There was an error in getting the progress.');
+    });
+}

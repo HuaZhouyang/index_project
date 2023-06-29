@@ -3,197 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <title>APP文件检索系统</title>
-    <style>
-        /*body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td, img {*/
-        /*    padding: 0;*/
-        /*    margin: 0;*/
-        /*}*/
-
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-
-        h1 {
-            color: blue;
-        }
-
-        .folder {
-            font-weight: bold;
-        }
-
-        .keyword {
-            color: red;
-        }
-
-        table {
-            border-collapse: collapse;
-            /*width: 100%;*/
-        }
-
-        th, td {
-            border: 1px solid black;
-            padding: 10px;
-        }
-
-        .parent-td {
-            text-align: center;
-        }
-
-        .parent-th {
-            width: 100px;
-            min-width: 55px;
-        }
-
-        .child-th {
-            width: 800px;
-        }
-
-        /* 隐藏默认的checkbox样式 */
-        input[type=checkbox] {
-            display: none;
-        }
-
-        /* 自定义checkbox样式 */
-        .custom-checkbox {
-            width: 16px;
-            height: 16px;
-            border: 1px solid #999;
-            text-align: center;
-            line-height: 16px;
-            color: #0000;
-            background-color: #fff;
-            display: inline-block;
-            vertical-align: middle;
-        }
-
-        /* 自定义选中状态的样式 */
-        .custom-checkbox.checked {
-            color: #fff;
-            background-color: #0075ff;
-        }
-
-        /* 自定义半选状态的样式 */
-        .custom-checkbox.half-checked {
-            color: #fff;
-            background-color: #ccc;
-        }
-
-        pre {
-            display: inline;
-        }
-
-        .content-container {
-            /*display: inline-block;*/
-            /*width: 700px;*/
-        }
-
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-    </style>
+    <!-- 引入bootstrap样式 -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <h1>APP文件检索系统</h1>
+<h1>APP文件检索系统</h1>
 
-    <!-- 非Windows系统下 -->
-    {% if platform.system() != "Windows" %}}
-    <!-- 显示当前目录，并提供一个链接让用户返回上一级目录 -->
-    <p class="folder">当前目录：{{ folder }}</p>
-    {% if folder != os.path.abspath (os.sep) %}
-    <p><a href="{{ url_for('index', folder=Path(folder).parent) }}">返回上一级目录</a></p>
+<!-- 非Windows系统下 -->
+{% if platform.system() != "Windows" %}}
+<!-- 显示当前目录，并提供一个链接让用户返回上一级目录 -->
+<p class="folder">当前目录：{{ folder }}</p>
+{% if folder != os.path.abspath (os.sep) %}
+<p><a class="button" href="{{ url_for('index', folder=Path(folder).parent) }}">返回上一级目录</a></p>
+{% endif %}
+<!-- 显示当前目录下的所有子目录，并提供一个链接让用户进入子目录 -->
+<p>子目录：</p>
+<ul>
+    {% for subfolder in Path(folder).iterdir() %}
+    {% if subfolder.is_dir() %}
+    <li><a href="{{ url_for('index', folder=subfolder) }}">{{ subfolder.name }}</a></li>
     {% endif %}
-    <!-- 显示当前目录下的所有子目录，并提供一个链接让用户进入子目录 -->
-    <p>子目录：</p>
-    <ul>
-        {% for subfolder in Path(folder).iterdir() %}
-        {% if subfolder.is_dir() %}
-        <li><a href="{{ url_for('index', folder=subfolder) }}">{{ subfolder.name }}</a></li>
-        {% endif %}
-        {% endfor %}
-    </ul>
-    <!-- Windows系统下 -->
-    {% else %}
-    <!-- 显示当前目录，并提供一个链接让用户返回上一级目录 -->
-    <!-- 非根目录 -->
-    {% if folder != win32api.GetLogicalDriveStrings() %}
-    <!-- 显示当前目录，并提供一个链接让用户返回上一级目录 -->
-    <p class="folder">当前目录：{{ folder }}</p>
-    {% if folder == os.path.abspath (os.sep) %}
-    <p><a href="{{ url_for('index', folder=win32api.GetLogicalDriveStrings()) }}">返回上一级目录</a></p>
-    {% else %}
-    <p><a href="{{ url_for('index', folder=Path(folder).parent) }}">返回上一级目录</a></p>
+    {% endfor %}
+</ul>
+<!-- Windows系统下 -->
+{% else %}
+<!-- 显示当前目录，并提供一个链接让用户返回上一级目录 -->
+<!-- 非根目录 -->
+{% if folder != DriveStrings %}
+<!-- 显示当前目录，并提供一个链接让用户返回上一级目录 -->
+<p class="folder">当前目录：{{ folder }}</p>
+{% if folder in DriveStrings.split('\x00')[:-1] %}
+<p><a class="button" href="{{ url_for('index', folder=DriveStrings) }}">返回上一级目录</a></p>
+{% else %}
+<p><a class="button" href="{{ url_for('index', folder=Path(folder).parent) }}">返回上一级目录</a></p>
+{% endif %}
+<!-- 显示当前目录下的所有子目录，并提供一个链接让用户进入子目录 -->
+<p>子目录：</p>
+<ul>
+    {% for subfolder in Path(folder).iterdir() %}
+    {% if subfolder.is_dir() %}
+    <li><a href="{{ url_for('index', folder=subfolder) }}">{{ subfolder.name }}</a></li>
     {% endif %}
-    <!-- 显示当前目录下的所有子目录，并提供一个链接让用户进入子目录 -->
-    <p>子目录：</p>
-    <ul>
-        {% for subfolder in Path(folder).iterdir() %}
-        {% if subfolder.is_dir() %}
-        <li><a href="{{ url_for('index', folder=subfolder) }}">{{ subfolder.name }}</a></li>
-        {% endif %}
-        {% endfor %}
-    </ul>
-    <!-- 根目录 -->
-    {% else %}
-    <!-- 显示当前目录，并提供一个链接让用户返回上一级目录 -->
-    <p class="folder">当前目录：盘符目录</p>
-    <!-- 显示当前目录下的所有子目录，并提供一个链接让用户进入子目录 -->
-    <p>子目录：</p>
-    <ul>
-        {% for drive in folder.split('\000')[:-1] %}
-        <li><a href="{{ url_for('index', folder=drive) }}">{{ drive }}</a></li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-    {% endif %}
-    <!-- 提供一个表单让用户输入关键字，并提交查询 -->
-    <form method="get" action="{{ url_for('index') }}">
-        <input type="hidden" name="folder" value="{{ folder }}">
-        <p>请输入查询的关键字：<input type="text" name="keyword" value="{{ keyword }}"></p>
-        <p><input type="submit" value="查询"></p>
-    </form>
+    {% endfor %}
+</ul>
+<!-- 根目录 -->
+{% else %}
+<!-- 显示当前目录，并提供一个链接让用户返回上一级目录 -->
+<p class="folder">当前目录：盘符目录</p>
+<!-- 显示当前目录下的所有子目录，并提供一个链接让用户进入子目录 -->
+<p>子目录：</p>
+<ul>
+    {% for drive in folder.split('\x00')[:-1] %}
+    <li><a href="{{ url_for('index', folder=drive) }}">{{ drive }}</a></li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+<!-- 提供一个表单让用户输入关键字，并提交查询 -->
+<form method="get" action="{{ url_for('index') }}" onsubmit="submit_search()">
+    <input type="hidden" name="folder" value='{{ parse.quote(folder) }}'>
+    <p>请输入查询的关键字：<input type="text" name="keyword" value="{{ keyword }}">
+        <input type="submit" value="查询">
+    </p>
+</form>
 
-    <!-- 如果有查询结果，就显示一个表格，每一行对应一个文件，每一列对应一个选择框和一个结果内容 -->
-    {% if results %}
-    <form method="get" action="{{ url_for('save') }}">
-        <table>
-            <tr>
-                <th class="parent-th">选择</th>
-                <th class="child-th">结果</th>
-            </tr>
-            {% for file_path, matches in results %}
-            <tr>
-                <td class="parent-td">
-                    <label>
-                        <input class="parent" type="checkbox" name="selections" value="{{ file_path }}">
-                        <span class="custom-checkbox">✔</span>
-                    </label>
-                </td>
-                <td class="child-td">{{ file_path }}<br>{{ "-" * 50 }}
-                    {% for line_number, content in matches %}
-                    <!-- 将关键字用span标签包裹，并添加样式 -->
-                    {% set content = content|replace(keyword, '<span class="keyword">' + keyword + '</span>')|safe %}
-                    <!-- 将文件路径和行号作为选择框的值 -->
-                    {% set value = line_number ~":"~ content|string %}
-                    <label>
-                        <input class="child" type="checkbox" name="{{ file_path }}" value="{{ line_number }}">
-                        <span class="custom-checkbox">✔</span>
-                        &nbsp;Line {{ line_number }}
-                        <pre>	</pre>
-                        <span class="content-container">{{ content }}</span>
-                    </label>
-                    {% endfor %}
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
-        <!-- 提供一个按钮让用户保存选择的结果到文本，并下载 -->
-        <p><input type="submit" value="保存"></p>
-    </form>
-    {% endif %}
+<!-- 如果有查询结果，就显示一个表格，每一行对应一个文件，每一列对应一个选择框和一个结果内容 -->
+{% if results %}
+<!-- 显示一个进度条，当有结果时为100% -->
+<div class="progress">
+    <div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
+         style="width:100%">
+        100%
+    </div>
+</div>
+<!-- 按钮触发模态框 -->
+<!--<button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">开始演示模态框</button>-->
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div style="width:80%" class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="myModalLabel">搜索结果</h4>
+            </div>
+            <form id="results-form" method="get" action="{{ url_for('save') }}">
+                <div class="modal-body">
+                    <table>
+                        <tr>
+                            <th class="parent-th">选择</th>
+                            <th class="child-th">结果</th>
+                        </tr>
+                        {% for file_path, matches in results %}
+                        <tr>
+                            <td class="parent-td">
+                                <label>
+                                    <input class="parent" type="checkbox" name="selections" value="{{ file_path }}">
+                                    <span class="custom-checkbox">✔</span>
+                                </label>
+                            </td>
+                            <td class="child-td">{{ file_path }}<br>{{ "-" * 50 }}
+                                {% for line_number, content in matches %}
+                                <!-- 将关键字用span标签包裹，并添加样式 -->
+                                {% set content = content|replace(keyword, '<span class="keyword">' + keyword + '</span>')|safe
+                                %}
+                                <!-- 将文件路径和行号作为选择框的值 -->
+                                {% set value = line_number ~":"~ content|string %}
+                                <label>
+                                    <input class="child" type="checkbox" name="{{ file_path }}"
+                                           value="{{ line_number }}">
+                                    <span class="custom-checkbox">✔</span>
+                                    &nbsp;Line {{ line_number }}
+                                    <pre class="tab-pre">	</pre>
+                                    <span class="content-container">{{ content }}</span>
+                                </label>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+
+                <!-- 提供一个按钮让用户保存选择的结果到文本，并下载 -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <input type="submit" value="保存到本地" class="btn btn-primary" id="btn_save">
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+{% else %}
+<!-- 显示一个进度条，初始值为0% -->
+<div class="progress" style="display:none">
+    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+         style="width:0">
+        0%
+    </div>
+</div>
+{% endif %}
 </body>
-<script src="js/jquery.3.4.1.min.js"></script>
+<script src="js/jquery.3.4.1.min.js"></script> <!-- 引入jQuery库 -->
+<script src="js/bootstrap.min.js"></script> <!-- 引入bootstrap脚本 -->
 <script src="js/index.js"></script>
 </html>
 
