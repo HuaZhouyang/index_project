@@ -91,7 +91,7 @@ children.each(function () {
 });
 
 let interval;
-update_progress(); // 载入时，当progress==100显示结果
+update_progress(true); // 载入时，当progress==100显示结果
 function submit_search() {
     interval = setInterval(update_progress, 100);
     $('.progress-bar').css('width', '0%').attr('aria-valuenow', 0).text(0 + '%');
@@ -109,7 +109,7 @@ function sleep(ms) {
     }
 }
 // 定义一个函数，每隔一秒向/progress发送一个get请求，并根据返回的值更新进度条的宽度和百分比
-function update_progress() {
+function update_progress(load_flag = false) {
     // $('.progress-bar').css('width', 0 + '%').attr('aria-valuenow', 0).text(0 + '%');
     // $(".progress").show();
     $.get('/progress').done(function (n) {
@@ -118,7 +118,8 @@ function update_progress() {
             // 如果进度为100%，就停止轮询，并显示搜索结果
             clearInterval(interval);
             // $('#results-form').show();
-            $('#myModal').modal('show');
+            if (load_flag)
+                $('#myModal').modal('show');
             // $(".progress").hide();
         }
     }).fail(function () {
